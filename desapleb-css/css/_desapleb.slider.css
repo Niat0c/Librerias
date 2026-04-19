@@ -1,0 +1,228 @@
+﻿/* DESAPLEB SLIDER — core styles (comments trimmed) */
+
+/* --- CONTENEDORES PRINCIPALES --- */
+._slider, ._slider-container {
+    width: 100%;
+    margin-bottom: 2rem;
+    position: relative;
+    background-color: var(--_bg-body);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* --- MODELO A: CARROUSEL CLÁSICO (Hero / Fade) --- */
+._slider-wrapper {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+}
+
+._slider-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    /* Slider items assigned into Slider/Gallery section (base 17100) */
+    z-index: 17100;
+}
+
+    ._slider-item._active {
+        display: block;
+        /* active slide slightly above base */
+        z-index: 17150;
+    }
+
+    ._slider-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+/* Variante: Efecto Desvanecimiento */
+._slider-fade ._slider-item {
+    transition: opacity 0.6s ease-in-out;
+    filter: alpha(opacity=0); /* IE9 */
+    opacity: 0;
+    display: block;
+}
+
+    ._slider-fade ._slider-item._active {
+        filter: alpha(opacity=100); /* IE9 */
+        opacity: 1;
+    }
+
+/* --- MODELO B: SLIDER TRACK (Cartas Horizontales) --- */
+._slider-track {
+    display: block !important; /* Para IE9 */
+    white-space: nowrap !important; /* Obliga a la fila única */
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1rem 0.5rem 1.5rem;
+    -webkit-overflow-scrolling: touch;
+    font-size: 0; /* Elimina espacios entre cartas */
+}
+
+/* Elementos dentro del Track (Cartas) */
+._slide-item, ._card-mini {
+    display: inline-block !important; /* IE9 compatible */
+    vertical-align: top;
+    width: 180px !important;
+    min-width: 180px !important;
+    margin-right: 1.25rem; /* Gap manual */
+    white-space: normal;
+    font-size: 1rem;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+    ._slide-item:hover {
+        transform: translateY(-5px);
+    }
+
+    ._slide-item img, ._card-mini img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+/* --- CONTROLES (Auto-Inyectados) --- */
+._slider-prev, ._slider-next {
+    position: absolute;
+    top: 50%;
+    margin-top: -20px;
+    width: 40px;
+    height: 40px;
+    background: #000; /* Fallback */
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    text-align: center;
+    line-height: 40px;
+    cursor: pointer;
+    /* Controls placed in Slider section (base 17000) */
+    z-index: 17000;
+    font-weight: bold;
+    border-radius: 50%;
+    transition: all 0.3s;
+    user-select: none;
+    font-family: Arial, sans-serif;
+}
+
+._slider-prev {
+    left: 10px;
+}
+
+._slider-next {
+    right: 10px;
+}
+
+    ._slider-prev:hover, ._slider-next:hover {
+        background: rgba(0,0,0,0.9);
+    }
+
+/* Indicadores (Puntos) */
+._slider-dots {
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
+    text-align: center;
+    /* dots above controls but within Slider section */
+    z-index: 17050;
+}
+
+._slider-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin: 0 5px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+    ._slider-dot._active {
+        background: var(--_gold, #fff);
+    }
+
+/* --- SCROLLBAR --- */
+._slider-track::-webkit-scrollbar {
+    height: 8px;
+}
+
+._slider-track::-webkit-scrollbar-track {
+    background: var(--_soft-gray, #222);
+    border-radius: 10px;
+}
+
+._slider-track::-webkit-scrollbar-thumb {
+    background: var(--_silver, #888);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+._slider._gold ._slider-track::-webkit-scrollbar-thumb {
+    background-color: var(--_gold);
+}
+
+/* CUSTOM SCROLLBAR (trimmed comments) */
+
+/* 1. Definimos variables por defecto (Gris/Plata) */
+._slider, ._slider-container {
+    --_sb-thumb: #888; /* Color del scroll */
+    --_sb-track: #222; /* Color del fondo del scroll */
+    --_sb-size: 8px; /* Grosor de la barra */
+}
+
+    /* 2. Variantes automáticas por clase */
+    ._slider._gold, ._slider-container._gold {
+        --_sb-thumb: #d4af37; /* Oro */
+    }
+
+    ._slider._blue, ._slider-container._blue {
+        --_sb-thumb: #3498db; /* Azul (ejemplo) */
+    }
+
+/* 3. Personalización para Chrome, Safari, Edge (Webkit) */
+._slider-track::-webkit-scrollbar {
+    height: var(--_sb-size); /* Altura para scroll horizontal */
+    width: var(--_sb-size); /* Ancho para scroll vertical */
+}
+
+._slider-track::-webkit-scrollbar-track {
+    background: var(--_sb-track);
+    border-radius: 10px;
+}
+
+._slider-track::-webkit-scrollbar-thumb {
+    background: var(--_sb-thumb);
+    border-radius: 10px;
+    border: 2px solid var(--_sb-track); /* Crea un efecto de separación */
+    background-clip: content-box; /* Hace que el thumb sea un poco más fino */
+}
+
+    ._slider-track::-webkit-scrollbar-thumb:hover {
+        background: #fff; /* Brillo al pasar el ratón */
+    }
+
+/* 4. Personalización para Firefox (Soporta colores pero no grosores tan finos) */
+._slider-track {
+    scrollbar-width: thin;
+    scrollbar-color: var(--_sb-thumb) var(--_sb-track);
+}
+
+/* 5. Variante: Ocultar scrollbar si se desea (Clase ._no-scrollbar) */
+._slider._no-scrollbar ._slider-track::-webkit-scrollbar {
+    display: none;
+}
+
+._slider._no-scrollbar ._slider-track {
+    -ms-overflow-style: none; /* IE y Edge antiguo */
+    scrollbar-width: none; /* Firefox */
+}

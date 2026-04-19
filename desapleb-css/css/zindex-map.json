@@ -1,0 +1,22 @@
+{
+  "mappings": [
+    { "selector": "._offcanvas", "file": "_desapleb.style.css", "original": 1220, "new": 13900 },
+    { "selector": "._offcanvas-backdrop", "file": "_desapleb.style.css", "original": 1210, "new": 13800 },
+    { "selector": "._tooltip-box", "file": "_desapleb.style.css", "original": 100000, "new": 12000 },
+    { "selector": "._hoverCard", "file": "_desapleb.style.css", "original": 100000, "new": 12100 },
+    { "selector": "._nav", "file": "_desapleb.style.css", "original": 1300, "new": 11000 },
+    { "selector": "._sidebar, ._sidebar._fixed", "file": "_desapleb.style.css", "original": 1200, "new": 10000 },
+    { "selector": "._toast", "file": "_desapleb.style.css", "original": 1000, "new": 15000 },
+    { "selector": "._modal", "file": "_desapleb.style.css", "original": 999999, "new": 14000 },
+    { "selector": "._modal-header ._modal-close", "file": "_desapleb.style.css", "original": 3, "new": 14100 },
+
+    { "selector": "._slider-item", "file": "_desapleb.slider.css", "original": 1, "new": 17100 },
+    { "selector": "._slider-item._active", "file": "_desapleb.slider.css", "original": 2, "new": 17150 },
+    { "selector": "._slider-prev", "file": "_desapleb.slider.css", "original": 10, "new": 17000 },
+    { "selector": "._slider-next", "file": "_desapleb.slider.css", "original": 10, "new": 17000 },
+    { "selector": "._slider-dots", "file": "_desapleb.slider.css", "original": 10, "new": 17050 },
+
+    { "selector": "._gallery-item:hover", "file": "_desapleb.galery.css", "original": 10, "new": 17200 },
+    { "selector": "._modal-overlay", "file": "_desapleb.galery.css", "original": 999999, "new": 14150 }
+  ]
+}
