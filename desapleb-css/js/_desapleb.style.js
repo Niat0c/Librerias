@@ -36,6 +36,26 @@
                         if (typeof window.toggleDarkMode === 'function') return window.toggleDarkMode();
                         var enabled = document.body.classList.toggle('_dark-mode');
                         try { localStorage.setItem('theme', enabled ? 'dark' : 'light'); } catch (e) { /* silent */ }
+                        // Ensure any open dropdowns are closed and if the mobile menu is open, close it.
+                        try {
+                            // Close any open nav-item dropdown states to avoid stuck UI
+                            var openedItems = document.querySelectorAll('._nav-item._open');
+                            for (var oi = 0; oi < openedItems.length; oi++) try { openedItems[oi].classList.remove('_open'); } catch (ex) { }
+
+                            var menu = document.querySelector('._nav-menu');
+                            var toggle = document.querySelector('._nav-toggle');
+                            if (menu) {
+                                var isOpen = menu.classList.contains('_show') || menu.classList.contains('_open');
+                                // Only close the menu when toggling dark mode (do not open it)
+                                if (isOpen) {
+                                    menu.classList.remove('_show');
+                                    menu.classList.remove('_open');
+                                }
+                                if (toggle) {
+                                    try { toggle.classList.remove('_active'); updateToggleAria(toggle, false); } catch (e) { }
+                                }
+                            }
+                        } catch (e) { /* silent */ }
                     } catch (e) { /* silent */ }
                 };
             }
@@ -400,6 +420,174 @@
         return _closest(node, sel);
     }
 
+    /* Responsive nav helper integrated into core script
+       - Ensures a hamburger toggle exists when missing
+       - Inserts it with priority: ._nav-left (first), ._nav-center (first), ._nav-right (last)
+       - Creates ._nav-left if none of the primary regions exist
+    */
+    function createToggleButton() {
+        var btn = document.createElement('button');
+        btn.className = '_nav-toggle _border _text-dark';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Abrir menú');
+        btn.setAttribute('aria-expanded', 'false');
+        try { btn.setAttribute('onclick', '_desaplebCSS.toggleMenu()'); } catch (e) { }
+        btn.textContent = '\u2630'; // ☰
+        return btn;
+    }
+
+    function ensureNavMenu(nav) {
+        if (!nav) return null;
+        var menu = nav.querySelector('._nav-menu');
+        if (menu) return menu;
+
+        var wrapper = document.createElement('div');
+        wrapper.className = '_nav-menu';
+
+        var children = Array.prototype.slice.call(nav.childNodes || []);
+        for (var i = 0; i < children.length; i++) {
+            var c = children[i];
+            if (c.nodeType !== 1) continue;
+            if (c.classList && c.classList.contains('_nav-toggle')) continue;
+            if (c.tagName && (c.tagName.toLowerCase() === 'a' || c.tagName.toLowerCase() === 'button' || (c.classList && (c.classList.contains('_nav-item') || c.classList.contains('nav-item'))))) {
+                wrapper.appendChild(c);
+            }
+        }
+
+        nav.appendChild(wrapper);
+        return wrapper;
+    }
+
+    function replaceMenuTextWithEmoji(nav) {
+        if (!nav) return;
+        try {
+            var walker = document.createTreeWalker(nav, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, null, false);
+            var nodes = [];
+            var n;
+            while (n = walker.nextNode()) nodes.push(n);
+            nodes.forEach(function (node) {
+                try {
+                    if (node.nodeType === 3) {
+                        var txt = node.nodeValue && node.nodeValue.trim();
+                        if (txt && txt.toLowerCase() === 'menu') {
+                            var parent = node.parentNode;
+                            if (!parent) return;
+                            var span = document.createElement('span');
+                            span.className = '_nav-emoji';
+                            span.setAttribute('aria-hidden', 'true');
+                            span.textContent = '\u2630';
+                            parent.replaceChild(span, node);
+                        }
+                    } else if (node.nodeType === 1) {
+                        var text = node.textContent && node.textContent.trim();
+                        if (text && text.toLowerCase() === 'menu') {
+                            node.textContent = '';
+                            var span2 = document.createElement('span');
+                            span2.className = '_nav-emoji';
+                            span2.setAttribute('aria-hidden', 'true');
+                            span2.textContent = '\u2630';
+                            node.appendChild(span2);
+                            node.setAttribute('aria-label', 'Abrir menú');
+                        }
+                    }
+                } catch (ex) { }
+            });
+        } catch (ex) { }
+    }
+
+    function updateToggleAria(toggle, open) {
+        try { toggle.setAttribute('aria-expanded', open ? 'true' : 'false'); } catch (e) { }
+    }
+
+    function attachNavBehavior(nav, toggle, menu) {
+        if (!nav || !toggle) return;
+
+        toggle.addEventListener('click', function () {
+            try {
+                if (window.toggleMenu && typeof window.toggleMenu === 'function') {
+                    window.toggleMenu();
+                    toggle.classList.toggle('_active');
+                    var m = nav.querySelector('._nav-menu');
+                    var isOpen = m && (m.classList.contains('_open') || m.classList.contains('_show'));
+                    updateToggleAria(toggle, isOpen);
+                    return;
+                }
+                if (window._desaplebCSS && typeof window._desaplebCSS.toggleMenu === 'function') {
+                    window._desaplebCSS.toggleMenu();
+                    toggle.classList.toggle('_active');
+                    var mm = nav.querySelector('._nav-menu');
+                    var openNow = mm && (mm.classList.contains('_open') || mm.classList.contains('_show'));
+                    updateToggleAria(toggle, openNow);
+                    return;
+                }
+            } catch (e) { }
+
+            if (!menu) menu = ensureNavMenu(nav);
+            if (!menu) return;
+            var isOpen = menu.classList.contains('_open') || menu.classList.contains('_show');
+            if (isOpen) {
+                menu.classList.remove('_open'); menu.classList.remove('_show'); toggle.classList.remove('_active'); updateToggleAria(toggle, false);
+            } else {
+                menu.classList.add('_open'); toggle.classList.add('_active'); updateToggleAria(toggle, true);
+            }
+        });
+
+        toggle.addEventListener('keydown', function (e) {
+            var key = e.key || e.keyCode;
+            if (key === 'Enter' || key === ' ' || key === 13 || key === 32) {
+                e.preventDefault && e.preventDefault(); toggle.click();
+            }
+        });
+
+        window.addEventListener('resize', function () {
+            try {
+                var w = window.innerWidth || document.documentElement.clientWidth;
+                if (w > 992) {
+                    if (menu && (menu.classList.contains('_open') || menu.classList.contains('_show'))) {
+                        menu.classList.remove('_open'); menu.classList.remove('_show'); toggle.classList.remove('_active'); updateToggleAria(toggle, false);
+                    }
+                }
+            } catch (e) { }
+        });
+    }
+
+    function initResponsiveNav() {
+        try {
+            var navs = document.querySelectorAll('nav._nav, nav');
+            for (var i = 0; i < navs.length; i++) {
+                var nav = navs[i];
+                if (nav.getAttribute && nav.getAttribute('data-disable-auto-toggle') === 'true') continue;
+                replaceMenuTextWithEmoji(nav);
+                var existing = nav.querySelector('._nav-toggle');
+                var menu = ensureNavMenu(nav);
+                if (!existing) {
+                    var toggle = createToggleButton();
+                    var navLeft = nav.querySelector('._nav-left');
+                    var navCenter = nav.querySelector('._nav-center');
+                    var navRight = nav.querySelector('._nav-right');
+                    if (navLeft) {
+                        if (navLeft.firstChild) navLeft.insertBefore(toggle, navLeft.firstChild); else navLeft.appendChild(toggle);
+                    } else if (navCenter) {
+                        if (navCenter.firstChild) navCenter.insertBefore(toggle, navCenter.firstChild); else navCenter.appendChild(toggle);
+                    } else if (navRight) {
+                        navRight.appendChild(toggle);
+                    } else {
+                        try {
+                            navLeft = document.createElement('div'); navLeft.className = '_nav-left';
+                            if (nav.firstChild) nav.insertBefore(navLeft, nav.firstChild); else nav.appendChild(navLeft);
+                            navLeft.appendChild(toggle);
+                        } catch (e) {
+                            if (nav.firstChild) nav.insertBefore(toggle, nav.firstChild); else nav.appendChild(toggle);
+                        }
+                    }
+                    attachNavBehavior(nav, toggle, menu);
+                } else {
+                    attachNavBehavior(nav, existing, menu);
+                }
+            }
+        } catch (e) { }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         // Desapleb Style active (logging removed in production)
 
@@ -407,6 +595,8 @@
         initFormularios();
         initTabs();
         markActiveNav();
+        // Inicializar helper responsive de navegación (inserta toggle si falta)
+        try { if (typeof initResponsiveNav === 'function') initResponsiveNav(); } catch (e) { }
         restoreThemePreference();
         
         // Progressive enhancement: mark document as JS-enabled so CSS can reveal UI affordances
@@ -579,6 +769,51 @@
             if (e.preventDefault) e.preventDefault();
             return false;
         });
+
+    // Handle nav link clicks: support dropdown toggles on mobile and auto-collapse
+    document.addEventListener('click', function (e) {
+        try {
+            var link = _eventClosest(e, '._nav-link');
+            if (!link) return;
+
+            var nav = _closest(link, 'nav._nav, nav');
+            if (!nav) return;
+
+            var parentItem = _closest(link, '._nav-item');
+            var insideDropdown = _closest(link, '._nav-dropdown');
+
+            // Determine if this clicked link is the top-level toggle for a dropdown
+            var isParentToggle = false;
+            try {
+                if (parentItem && link.parentNode === parentItem && parentItem.querySelector && parentItem.querySelector('._nav-dropdown')) isParentToggle = true;
+            } catch (ex) { isParentToggle = false; }
+
+            // If user clicked the parent toggle (e.g. "Descargas"), toggle the submenu open state
+            if (isParentToggle) {
+                // Prevent navigation on parent toggle so user can open submenu
+                if (e.preventDefault) e.preventDefault();
+                try { parentItem.classList.toggle('_open'); } catch (err) { }
+                return;
+            }
+
+            // Otherwise (clicked a real link, possibly inside a dropdown), collapse the mobile menu
+            var menu = nav.querySelector('._nav-menu');
+            if (menu && (menu.classList.contains('_open') || menu.classList.contains('_show'))) {
+                menu.classList.remove('_open');
+                menu.classList.remove('_show');
+                // remove any open dropdown states inside this nav
+                try {
+                    var opened = nav.querySelectorAll('._nav-item._open');
+                    for (var oi = 0; oi < opened.length; oi++) opened[oi].classList.remove('_open');
+                } catch (err) { }
+                // sync toggle button state
+                var toggle = nav.querySelector('._nav-toggle');
+                if (toggle) {
+                    try { toggle.classList.remove('_active'); updateToggleAria(toggle, false); } catch (err) { }
+                }
+            }
+        } catch (err) { /* silent */ }
+    }, false);
     });
 
     /**
@@ -1316,6 +1551,24 @@
             if (btn) btn.innerHTML = '🌙 Modo Oscuro';
             localStorage.setItem('theme', 'light');
         }
+        // Close any open dropdowns and close the mobile menu if open
+        try {
+            var openedItems = document.querySelectorAll('._nav-item._open');
+            for (var oi = 0; oi < openedItems.length; oi++) try { openedItems[oi].classList.remove('_open'); } catch (ex) { }
+
+            var menu = document.querySelector('._nav-menu');
+            var toggle = document.querySelector('._nav-toggle');
+            if (menu) {
+                var isOpen = menu.classList.contains('_show') || menu.classList.contains('_open');
+                if (isOpen) {
+                    menu.classList.remove('_show');
+                    menu.classList.remove('_open');
+                }
+                if (toggle) {
+                    try { toggle.classList.remove('_active'); updateToggleAria(toggle, false); } catch (e) { }
+                }
+            }
+        } catch (e) { /* silent */ }
     };
 
     function restoreThemePreference() {
