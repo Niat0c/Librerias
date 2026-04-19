@@ -22,9 +22,9 @@ Me cansé de adaptar mis proyectos a librerías robustas y decidí invertir la l
 
 ## 🏗️ En qué estoy trabajando actualmente
 
-- **[Nombre del Proyecto 1]**: Una alternativa minimalista para [función, ej: gestión de estados].
-- **[Nombre del Proyecto 2]**: Mi propia librería de componentes UI sin frameworks pesados.
-- **Explorando**: La intersección entre la IA y la generación de código limpio (Clean Code).
+- 📦 desapleb-css: Una librería de micro-utilidades para efectos visuales modernos. A diferencia de los frameworks tradicionales, ofrece una granularidad extrema en las configuraciones sin generar conflictos. Es totalmente no invasiva: se integra sobre tu CSS actual sin riesgo de sobreescribir estilos previos.
+- 🎨 desapleb-icons: Un motor de iconos on-demand. Olvídate de cargar paquetes de fuentes pesados con miles de iconos que no usas. Esta herramienta permite inyectar exclusivamente los glifos que tu proyecto necesita, integrándolos automáticamente en tu flujo de trabajo web de forma ultraligera.
+- 🤖 Explorando (IA + Clean Code): Investigando cómo utilizar modelos de lenguaje para automatizar la refactorización de código, priorizando la legibilidad y la reducción de deuda técnica sin sacrificar la eficiencia.
 
 ---
 
