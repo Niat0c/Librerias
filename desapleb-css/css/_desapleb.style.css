@@ -3237,53 +3237,95 @@ body._has-sidebar-right { padding-right: 260px; }
     body._has-sidebar-left { padding-left: 0; }
     body._has-sidebar-right { padding-right: 0; }
 }
-
 /* --- MASTER LAYOUT & WRAPPERS --- */
 ._layout-wrapper, ._layout-master {
-    display: flex; flex-direction: column; min-height: 100vh; width: 100%;
+    display: block; /* Base sólida para IE9 */
+    display: flex; 
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
 }
+
+/* Contenedor que separa Sidebar de Contenido */
 ._main-content, ._main-container {
-    display: flex; flex: 1 0 auto; width: 100%; position: relative;
+    display: block; /* IE9 */
+    display: flex;
+    flex: 1 0 auto;
+    width: 100%;
+    position: relative;
+    clear: both;
 }
 
 /* --- CONTENT AREAS --- */
 ._content, ._content-area {
-    flex: 1; padding: 30px; background: var(--_bg-body); min-width: 0;
+    display: block;
+    flex: 1;
+    padding: 30px;
+    background: var(--_bg-body);
+    min-width: 0;
+    box-sizing: border-box;
 }
-._content-narrow { max-width: 800px; margin: 0 auto; }
-._content-area._boxed { max-width: 1100px; margin: 0 auto; }
+
+/* Variantes de ancho */
+._content-narrow, ._content-area._boxed {
+    width: 100%;
+    margin: 0 auto;
+    float: none;
+}
+._content-narrow { max-width: 800px; }
+._content-area._boxed { max-width: 1100px; }
 ._content-area._flush { padding: 0 !important; }
 
-/* --- FOOTER FIXED (Auto-push) --- */
+/* --- SIDEBAR --- */
+._sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--_soft-ghost);
+    border-right: 1px solid var(--_border-base);
+}
+
+/* --- FOOTER (Siempre abajo) --- */
 ._footer {
-    flex-shrink: 0; padding: 20px; background: var(--_dark); color: #fff;
+    display: block;
+    flex-shrink: 0;
+    padding: 20px;
+    background: var(--_dark);
+    color: #fff;
+    clear: both;
 }
 
 /* --- HERO COMPONENT --- */
 ._hero {
-    padding: 60px 20px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; text-align: center;
-    background-color: var(--_soft-ghost); border-bottom: 1px solid var(--_border-base);
-    min-height: 300px; width: 100%;
+    padding: 60px 20px;
+    text-align: center;
+    background-color: var(--_soft-ghost);
+    border-bottom: 1px solid var(--_border-base);
+    width: 100%;
+    box-sizing: border-box;
 }
-._hero._full { min-height: 80vh; }
-._hero._brand { background-color: var(--_brand); color: #fff; }
-._hero._dark { background-color: var(--_dark); color: #fff; }
-._hero._gold { background-color: var(--_gold); color: #fff; border-bottom: 4px solid var(--_mustard); }
-
 ._hero-title { font-size: 3rem; margin-bottom: 1rem; font-weight: bold; line-height: 1.2; }
 ._hero-subtitle { font-size: 1.5rem; margin-bottom: 2rem; opacity: 0.8; }
 
-/* --- RESPONSIVE ADAPTATION (IE9 Compatible Media Queries) --- */
+/* --- MEDIA QUERIES (Responsive) --- */
 @media (max-width: 768px) {
-    ._main-content, ._main-container { flex-direction: column; }
-    ._main-container._reverse-mobile { flex-direction: column-reverse; }
+    ._main-content, ._main-container { display: block; }
     ._sidebar { 
-        width: 100% !important; border-right: none; 
+        width: 100% !important; 
+        border-right: none; 
         border-bottom: 1px solid var(--_border-base); 
     }
-    ._content, ._content-area { padding: 20px; }
-    ._hero-title { font-size: 2.2rem; }
+    ._content, ._content-area { padding: 20px; width: 100% !important; }
+    ._hero-title { font-size: 2rem; }
+}
+
+/* --- IE9 FIX (Si falla el Polyfill) --- */
+.no-flex ._sidebar, .no-flex ._content {
+    display: inline-block !important;
+    vertical-align: top;
+}
+.no-flex ._content {
+    width: calc(100% - 260px); /* Ajuste manual para IE9 */
 }
 
 /* --- IE9 SPECIFIC OVERRIDES (In case Polyfill needs help) --- */
