@@ -2523,7 +2523,6 @@ body._dark-mode ._tooltip-box::after {
 ._nav-toggle._active ._nav-toggle-box span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
 ._nav-toggle._active ._nav-toggle-box span:nth-child(2) { opacity: 0; }
 ._nav-toggle._active ._nav-toggle-box span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-}
 
 @media (max-width: 992px) {
     ._nav-toggle { display: block; }
